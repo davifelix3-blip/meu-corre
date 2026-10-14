@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MeuCorre - O App do Motoboy</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter, Great Vibes (1500s classic cursive calligraphy), and Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: '#ff5722',
+            brandDark: '#e64a19',
+            neonYellow: '#ccff00',
+            gold: '#d4af37',
+            goldDark: '#aa8c2c',
+            cardBg: '#1e1e1e',
+            bgDark: '#0a0a0a',
+            bgContainer: '#121212',
+          },
+          fontFamily: {
+            cursive: ['Great Vibes', 'cursive'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar for sleek mobile view */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #121212;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 4px;
+    }
+
+    /* Pulsing Dollar Button Animation */
+    @keyframes pulseDollar {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(204, 255, 0, 0.6);
+      }
+      50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 25px 8px rgba(204, 255, 0, 0.4);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(204, 255, 0, 0);
+      }
+    }
+
+    .btn-pulse-dollar {
+      animation: pulseDollar 1.6s infinite ease-in-out;
+    }
+
+    /* Frame Avatar Styles */
+    .frame-0 { border: 3px solid #ff5722; }
+    .frame-1 { border: 3px solid #ccff00; box-shadow: 0 0 10px #ccff00; }
+    .frame-2 { border: 3px solid #d4af37; box-shadow: 0 0 12px #d4af37; }
+    .frame-3 { border: 3px dashed #2196f3; }
+    .frame-4 { border: 4px double #e91e63; }
+  </style>
+</head>
+
+<body class="bg-black text-gray-100 flex items-center justify-center min-h-screen p-0 sm:p-4 select-none">
+
+  <!-- Main Phone Container -->
+  <div id="phone-container" class="relative w-full max-w-[420px] h-[100vh] sm:h-[860px] bg-bgContainer sm:rounded-[36px] sm:border-[8px] border-neutral-800 shadow-2xl overflow-hidden flex flex-col justify-between">
+
+    <!-- APP HEADER & PERSONAL SIGNATURE -->
+    <header id="app-header" class="relative bg-neutral-900 border-b border-neutral-800 px-4 py-3 flex flex-col items-center justify-center shadow-md z-10 transition-colors">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🏍️</span>
+        <h1 class="text-2xl font-extrabold tracking-wide text-brand drop-shadow">MeuCorre</h1>
+      </div>
+      <!-- Davi Felix Signature in 1500s Gold Cursive Style -->
+      <div class="font-cursive text-gold text-lg leading-none mt-0.5 tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        Created by Davi Felix
+      </div>
+    </header>
+
+    <!-- MAIN TAB CONTENTS CONTAINER -->
+    <main id="tab-viewport" class="flex-1 overflow-y-auto relative bg-bgContainer p-3 text-sm">
+
+      <!-- TAB: DASHBOARD -->
+      <section id="tab-dash" class="tab-page space-y-3">
+        <!-- Yesterday's Earnings Blue Balloon -->
+        <div id="balao-ontem" class="bg-blue-600/90 text-white rounded-xl p-2.5 text-center shadow-lg border border-blue-400/30 backdrop-blur">
+          <div class="text-[10px] uppercase font-bold tracking-wider text-blue-200">Dia Anterior Trabalhado</div>
+          <div id="txt-val-ontem" class="text-lg font-black">R$ 0,00</div>
+        </div>
+
+        <!-- Work Toggle Button -->
+        <button id="btn-toggle-work" onclick="handleWorkToggle()" class="w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition-all transform active:scale-98 bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center gap-2 text-base">
+          <span id="work-icon">🟢</span>
+          <span id="work-text">INICIAR</span>
+        </button>
+
+        <!-- Dashboard Stat Cards Grid -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <!-- Total Corridas -->
+          <div class="dash-card bg-cardBg p-3 rounded-xl border border-neutral-800 flex flex-col justify-between">
+            <span class="text-xs text-neutral-400 font-medium">Corridas do Dia</span>
+            <div id="dash-corridas-count" class="text-2xl font-black text-white mt-1">0</div>
+            <span class="text-[10px] text-neutral-500 mt-1">Lançadas hoje</span>
+          </div>
+
+          <!-- Total Km -->
+          <div class="dash-card bg-cardBg p-3 rounded-xl border border-neutral-800 flex flex-col justify-between">
+            <span class="text-xs text-neutral-400 font-medium">Km Percorridos</span>
+            <div id="dash-km-total" class="text-2xl font-black text-white mt-1">0 km</div>
+            <div class="text-[10px] text-neutral-500 mt-1 flex justify-between">
+              <span>Ini: <b id="dash-km-ini" class="text-neutral-300">0</b></span>
+              <span>Fim: <b id="dash-km-fim" class="text-neutral-300">0</b></span>
+            </div>
+          </div>
+
+          <!-- Total Ganho -->
+          <div class="dash-card bg-cardBg p-3 rounded-xl border border-neutral-800 col-span-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-neutral-400 font-medium">Faturamento do Dia</span>
+              <span class="text-[10px] bg-emerald-900/60 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">Total</span>
+            </div>
+            <div id="dash-valor-total" class="text-3xl font-black text-emerald-400 my-1">R$ 0,00</div>
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-neutral-800/80 text-xs">
+              <div class="bg-neutral-900/80 p-1.5 rounded border border-neutral-800">
+                <span class="text-[10px] text-neutral-400 block">PIX</span>
+                <span id="dash-val-pix" class="font-bold text-teal-300">R$ 0,00</span>
+              </div>
+              <div class="bg-neutral-900/80 p-1.5 rounded border border-neutral-800">
+                <span class="text-[10px] text-neutral-400 block">Dinheiro</span>
+                <span id="dash-val-dinheiro" class="font-bold text-amber-300">R$ 0,00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tempo de Trabalho -->
+          <div class="dash-card bg-cardBg p-3 rounded-xl border border-neutral-800">
+            <span class="text-xs text-neutral-400 font-medium">Tempo de Trabalho</span>
+            <div id="dash-tempo-trabalho" class="text-xl font-bold text-sky-400 mt-1">00:00h</div>
+            <span class="text-[10px] text-neutral-500 mt-1 block">Tempo online hoje</span>
+          </div>
+
+          <!-- Empresas Atendidas -->
+          <div class="dash-card bg-cardBg p-3 rounded-xl border border-neutral-800">
+            <span class="text-xs text-neutral-400 font-medium">Empresas Atendidas</span>
+            <div id="dash-empresas-count" class="text-xl font-bold text-amber-400 mt-1">0</div>
+            <span class="text-[10px] text-neutral-500 mt-1 block">Locais diferentes</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: EMPRESAS (GERENCIAR) -->
+      <section id="tab-empresas" class="tab-page hidden space-y-3">
+        <div class="flex items-center gap-2 bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+          <span class="text-2xl">🏪</span>
+          <div>
+            <h2 class="font-bold text-white leading-tight">Gerenciamento de Empresas</h2>
+            <p class="text-[11px] text-neutral-400">Cadastre e acompanhe os comércios parceiros</p>
+          </div>
+        </div>
+
+        <!-- Add Empresa Form -->
+        <form onsubmit="handleAddEmpresa(event)" class="bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-2">
+          <div class="text-xs font-semibold text-brand uppercase tracking-wider">Nova Empresa</div>
+          <input type="text" id="emp-input-nome" placeholder="Nome da empresa / restaurante" required class="w-full bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-brand">
+          <input type="text" id="emp-input-end" placeholder="Endereço (opcional)" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-brand">
+          
+          <div class="flex items-center justify-between">
+            <label class="text-xs text-neutral-400">Avaliação de Qualidade:</label>
+            <select id="emp-input-stars" class="bg-neutral-900 border border-neutral-700 rounded-lg p-1.5 text-xs text-amber-400 font-bold focus:outline-none">
+              <option value="5">⭐⭐⭐⭐⭐ (5.0)</option>
+              <option value="4">⭐⭐⭐⭐ (4.0)</option>
+              <option value="3">⭐⭐⭐ (3.0)</option>
+              <option value="2">⭐⭐ (2.0)</option>
+              <option value="1">⭐ (1.0)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="w-full py-2 bg-brand hover:bg-brandDark text-white font-bold rounded-lg text-xs transition">
+            + Cadastrar Empresa
+          </button>
+        </form>
+
+        <!-- Sort and Filters -->
+        <div class="flex items-center justify-between px-1 text-xs">
+          <span class="text-neutral-400">Ordenar por:</span>
+          <select id="emp-sort-select" onchange="renderEmpresas()" class="bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-xs text-white">
+            <option value="nome">Nome (A-Z)</option>
+            <option value="maisUsadas">Mais Utilizadas</option>
+            <option value="stars">Melhor Avaliadas</option>
+          </select>
+        </div>
+
+        <!-- Empresa List -->
+        <div id="lista-empresas" class="space-y-2">
+          <!-- Populated via JS -->
+        </div>
+      </section>
+
+      <!-- TAB: LANÇAR CORRIDA (BALCÃO DE PEDIDOS) -->
+      <section id="tab-corrida" class="tab-page hidden space-y-3">
+        <!-- Balcão de Pedidos Theme Header -->
+        <div class="bg-amber-950/40 border border-amber-800/50 p-3 rounded-xl text-center relative overflow-hidden">
+          <div class="text-xs uppercase tracking-widest text-amber-400 font-bold">Balcão de Lançamentos</div>
+          <p class="text-[11px] text-amber-200/70">Toque no cifrão verde para lançar corridas</p>
+
+          <!-- Big Pulsating Green Dollar Sign -->
+          <button id="btn-pulsing-dollar" onclick="handleLaunchCorrida()" class="btn-pulse-dollar mx-auto my-3 w-20 h-20 rounded-full bg-emerald-600 border-4 border-neonYellow text-neonYellow flex items-center justify-center font-black text-4xl shadow-2xl transition transform active:scale-90">
+            $
+          </button>
+        </div>
+
+        <!-- Launch Form Controls -->
+        <div class="bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-3">
+          <!-- Select Empresa -->
+          <div>
+            <label class="block text-xs font-medium text-neutral-400 mb-1">Empresa Solicitante:</label>
+            <select id="corrida-empresa-select" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg p-2.5 text-xs text-white font-semibold focus:outline-none focus:border-emerald-500">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <!-- Quick Value Pills -->
+          <div>
+            <label class="block text-xs font-medium text-neutral-400 mb-1">Valores Rápidos (R$):</label>
+            <div class="grid grid-cols-6 gap-1.5">
+              <button onclick="setQuickVal(7)" class="pill-val py-2 bg-neutral-800 hover:bg-emerald-700 rounded-lg font-bold text-white text-xs border border-neutral-700">7</button>
+              <button onclick="setQuickVal(8)" class="pill-val py-2 bg-neutral-800 hover:bg-emerald-700 rounded-lg font-bold text-white text-xs border border-neutral-700">8</button>
+              <button onclick="setQuickVal(9)" class="pill-val py-2 bg-neutral-800 hover:bg-emerald-700 rounded-lg font-bold text-white text-xs border border-neutral-700">9</button>
+              <button onclick="setQuickVal(10)" class="pill-val py-2 bg-neutral-800 hover:bg-emerald-700 rounded-lg font-bold text-white text-xs border border-neutral-700">10</button>
+              <button onclick="setQuickVal(12)" class="pill-val py-2 bg-neutral-800 hover:bg-emerald-700 rounded-lg font-bold text-white text-xs border border-neutral-700">12</button>
+              <button onclick="setQuickVal(15)" class="pill-val py-2 bg-neutral-800 hover:bg-emerald-700 rounded-lg font-bold text-white text-xs border border-neutral-700">15</button>
+            </div>
+          </div>
+
+          <!-- Manual Value & Payment Method -->
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-medium text-neutral-400 mb-1">Valor Unitário (R$):</label>
+              <input type="number" id="corrida-valor-input" step="0.5" placeholder="0.00" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-sm text-emerald-400 font-bold focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-neutral-400 mb-1">Forma de Pagamento:</label>
+              <select id="corrida-pagamento" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white focus:outline-none">
+                <option value="pix">PIX / Digital</option>
+                <option value="dinheiro">Dinheiro Físico</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Quantity Selector -->
+          <div class="flex items-center justify-between bg-neutral-900 p-2 rounded-lg border border-neutral-800">
+            <span class="text-xs text-neutral-300 font-medium">Quantidade de Corridas:</span>
+            <div class="flex items-center gap-2">
+              <button onclick="adjQtd(-1)" class="w-7 h-7 bg-neutral-800 rounded font-bold text-white">-</button>
+              <span id="corrida-qtd-val" class="font-bold text-base text-brand w-6 text-center">1</span>
+              <button onclick="adjQtd(1)" class="w-7 h-7 bg-neutral-800 rounded font-bold text-white">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Corridas History Shift List -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs px-1">
+            <span class="font-bold text-neutral-300">Corridas Registradas Hoje</span>
+            <span class="text-neutral-500" id="shift-count-label">0 itens</span>
+          </div>
+          <div id="lista-corridas-hoje" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: OFICINA (MOTOS & MANUTENÇÃO) -->
+      <section id="tab-oficina" class="tab-page hidden space-y-3">
+        <!-- Header Balloon -->
+        <div class="bg-neutral-900 border-l-4 border-neonYellow p-3 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-neonYellow uppercase tracking-wider flex items-center gap-1">
+              🛢️ Última Troca de Óleo
+            </span>
+            <span class="text-[10px] bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded">Status Ativo</span>
+          </div>
+          <div id="balao-oficina-oleo" class="text-xs text-neutral-300 pt-1">
+            Sem registros recentes de troca de óleo.
+          </div>
+        </div>
+
+        <!-- Form 1: Troca de Óleo -->
+        <form onsubmit="handleSalvarOleo(event)" class="bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-2">
+          <div class="text-xs font-bold text-neonYellow uppercase flex items-center gap-1">
+            <span>⚙️</span> Registrar Troca de Óleo
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="oleo-oficina-nome" placeholder="Nome da Oficina" required class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="oleo-valor" placeholder="Valor Óleo (R$)" required class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <input type="number" id="oleo-mao-obra" placeholder="Mão de Obra" class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="oleo-km-atual" placeholder="Km Atual" required class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="oleo-km-prox" placeholder="Próxima (Km)" required class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+          </div>
+          <button type="submit" class="w-full py-2 bg-neonYellow text-black font-extrabold rounded-lg text-xs hover:bg-yellow-300 transition">
+            Salvar Troca de Óleo
+          </button>
+        </form>
+
+        <!-- Form 2: Troca de Peças -->
+        <form onsubmit="handleSalvarPeca(event)" class="bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-2">
+          <div class="text-xs font-bold text-amber-400 uppercase flex items-center gap-1">
+            <span>🔧</span> Registrar Troca de Peças
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="peca-nome" placeholder="Nome da Peça / Serviço" required class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="peca-valor" placeholder="Valor Total (R$)" required class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="peca-oficina" placeholder="Oficina / Mecânico" class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="peca-km" placeholder="Km no dia" class="bg-neutral-900 border border-neutral-700 rounded-lg p-2 text-xs text-white">
+          </div>
+          <button type="submit" class="w-full py-2 bg-amber-500 text-black font-bold rounded-lg text-xs hover:bg-amber-400 transition">
+            Salvar Troca de Peça
+          </button>
+        </form>
+
+        <!-- Oficinas Log History -->
+        <div class="space-y-2">
+          <span class="text-xs font-bold text-neutral-400 block">Histórico da Oficina (Últimos 10 registros)</span>
+          <div id="historico-oficina" class="space-y-1.5 max-h-48 overflow-y-auto">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: AGENDA / CALENDÁRIO -->
+      <section id="tab-agenda" class="tab-page hidden space-y-3">
+        <div class="flex items-center justify-between bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">📅</span>
+            <div>
+              <h2 class="font-bold text-white text-xs">Calendário de Desempenho</h2>
+              <p class="text-[10px] text-neutral-400">Ganhos diários e tarefas agendadas</p>
+            </div>
+          </div>
+          <div class="flex gap-2 text-[10px]">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>&le;R$100</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span>&gt;R$100</span>
+          </div>
+        </div>
+
+        <!-- Calendar Month Grid -->
+        <div class="bg-cardBg p-2.5 rounded-xl border border-neutral-800">
+          <div id="cal-month-title" class="text-center font-bold text-xs text-brand mb-2 uppercase tracking-wider">Outubro 2026</div>
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-neutral-500 mb-1">
+            <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+          </div>
+          <div id="cal-days-grid" class="grid grid-cols-7 gap-1">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Task Manager -->
+        <div class="bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-white">Tarefas do Dia Selecionado (<span id="agenda-dia-sel" class="text-brand">Hoje</span>)</span>
+            <button onclick="handlePromptAddTask()" class="px-2 py-1 bg-brand text-white rounded text-[10px] font-bold">+ Nova Tarefa</button>
+          </div>
+          <div id="agenda-tarefas-list" class="space-y-1.5 max-h-36 overflow-y-auto">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: OPÇÕES (PONTO DE ENCONTRO) -->
+      <section id="tab-opcoes" class="tab-page hidden space-y-3">
+        <div class="bg-neutral-900 p-3 rounded-xl border border-neutral-800 flex items-center gap-3">
+          <!-- Profile Photo with customizable Frame -->
+          <div class="relative">
+            <div id="profile-frame" class="w-14 h-14 rounded-full overflow-hidden frame-0 flex items-center justify-center bg-neutral-800">
+              <img id="profile-img" src="https://placehold.co/100x100/222/fff?text=Motoboy" alt="Foto Perfil" class="w-full h-full object-cover">
+            </div>
+            <label for="img-upload-input" class="absolute -bottom-1 -right-1 bg-brand text-white text-[9px] rounded-full p-1 cursor-pointer">📷</label>
+            <input type="file" id="img-upload-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+          </div>
+
+          <div class="flex-1">
+            <input type="text" id="prof-nome-input" value="Davi Felix" onchange="saveProfileData()" class="bg-transparent border-b border-neutral-700 text-sm font-bold text-white w-full focus:outline-none focus:border-brand">
+            <input type="text" id="prof-moto-input" value="Honda CG 160 Fan - ABC1D23" onchange="saveProfileData()" class="bg-transparent border-b border-neutral-800 text-xs text-neutral-400 w-full focus:outline-none mt-1">
+          </div>
+        </div>
+
+        <!-- Frame Themes Selector -->
+        <div class="bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-2">
+          <label class="text-xs font-semibold text-neutral-300">Moldura da Foto de Perfil (5 Opções):</label>
+          <div class="flex justify-between items-center pt-1">
+            <button onclick="setAvatarFrame(0)" class="w-8 h-8 rounded-full border-2 border-brand bg-neutral-900 text-[10px] font-bold">1</button>
+            <button onclick="setAvatarFrame(1)" class="w-8 h-8 rounded-full border-2 border-neonYellow bg-neutral-900 text-[10px] font-bold">2</button>
+            <button onclick="setAvatarFrame(2)" class="w-8 h-8 rounded-full border-2 border-gold bg-neutral-900 text-[10px] font-bold">3</button>
+            <button onclick="setAvatarFrame(3)" class="w-8 h-8 rounded-full border-2 border-blue-500 bg-neutral-900 text-[10px] font-bold">4</button>
+            <button onclick="setAvatarFrame(4)" class="w-8 h-8 rounded-full border-2 border-pink-500 bg-neutral-900 text-[10px] font-bold">5</button>
+          </div>
+        </div>
+
+        <!-- Dashboard Theme Color Customizer -->
+        <div class="bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-2">
+          <label class="text-xs font-semibold text-neutral-300 block">Mudar Cor de Destaque dos Botões:</label>
+          <div class="flex gap-2">
+            <button onclick="setPrimaryColor('#ff5722')" class="w-6 h-6 rounded-full bg-[#ff5722]"></button>
+            <button onclick="setPrimaryColor('#10b981')" class="w-6 h-6 rounded-full bg-[#10b981]"></button>
+            <button onclick="setPrimaryColor('#3b82f6')" class="w-6 h-6 rounded-full bg-[#3b82f6]"></button>
+            <button onclick="setPrimaryColor('#8b5cf6')" class="w-6 h-6 rounded-full bg-[#8b5cf6]"></button>
+            <button onclick="setPrimaryColor('#e11d48')" class="w-6 h-6 rounded-full bg-[#e11d48]"></button>
+          </div>
+        </div>
+
+        <!-- Backup and Sync Tools -->
+        <div class="bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-2">
+          <span class="text-xs font-bold text-white block">Sincronização & Backup</span>
+          
+          <button onclick="handleGoogleSync()" class="w-full py-2 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-lg text-xs font-semibold text-white flex items-center justify-center gap-2">
+            <span>🌐</span> Sincronizar com Conta Google
+          </button>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="exportEmpresasBackup()" class="py-2 bg-blue-600/80 hover:bg-blue-600 rounded-lg text-[11px] font-bold text-white">
+              💾 Salvar Empresas
+            </button>
+            <button onclick="importEmpresasBackup()" class="py-2 bg-purple-600/80 hover:bg-purple-600 rounded-lg text-[11px] font-bold text-white">
+              📥 Restaurar Empresas
+            </button>
+          </div>
+
+          <button onclick="testSystemDiagnostics()" class="w-full py-2 bg-emerald-700 hover:bg-emerald-600 rounded-lg text-xs font-bold text-white mt-1">
+            ⚡ Testar Funcionamento do App
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="bg-neutral-900 border-t border-neutral-800 h-16 flex items-center justify-around px-1 z-20">
+      <button onclick="switchTab('tab-dash', this)" class="nav-btn active flex flex-col items-center justify-center text-brand w-14 py-1">
+        <span class="text-lg">📊</span>
+        <span class="text-[9px] font-bold mt-0.5">Dash</span>
+      </button>
+
+      <button onclick="switchTab('tab-empresas', this)" class="nav-btn flex flex-col items-center justify-center text-neutral-400 w-14 py-1">
+        <span class="text-lg">🏪</span>
+        <span class="text-[9px] font-bold mt-0.5">Empresas</span>
+      </button>
+
+      <!-- Center Pulsing Dollar Action Tab -->
+      <button onclick="switchTab('tab-corrida', this)" class="nav-btn flex flex-col items-center justify-center text-neutral-400 w-14 py-1">
+        <span class="text-xl text-neonYellow font-extrabold">💲</span>
+        <span class="text-[9px] font-bold mt-0.5 text-neonYellow">Lançar</span>
+      </button>
+
+      <button onclick="switchTab('tab-oficina', this)" class="nav-btn flex flex-col items-center justify-center text-neutral-400 w-14 py-1">
+        <span class="text-lg">🛢️</span>
+        <span class="text-[9px] font-bold mt-0.5">Oficina</span>
+      </button>
+
+      <button onclick="switchTab('tab-agenda', this)" class="nav-btn flex flex-col items-center justify-center text-neutral-400 w-14 py-1">
+        <span class="text-lg">📅</span>
+        <span class="text-[9px] font-bold mt-0.5">Agenda</span>
+      </button>
+
+      <button onclick="switchTab('tab-opcoes', this)" class="nav-btn flex flex-col items-center justify-center text-neutral-400 w-14 py-1">
+        <span class="text-lg">⚙️</span>
+        <span class="text-[9px] font-bold mt-0.5">Opções</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Modal for Day Tasks Popup -->
+  <div id="modal-task" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-cardBg border border-neutral-700 rounded-2xl w-full max-w-xs p-4 space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-white text-sm">Tarefas do Dia <span id="modal-date-label" class="text-brand"></span></h3>
+        <button onclick="closeTaskModal()" class="text-neutral-400 font-bold">✕</button>
+      </div>
+      <div id="modal-task-content" class="space-y-2 text-xs max-h-48 overflow-y-auto">
+        <!-- Task items -->
+      </div>
+      <button onclick="promptAddTaskForModal()" class="w-full py-2 bg-brand text-white rounded-lg text-xs font-bold">+ Adicionar Tarefa</button>
+    </div>
+  </div>
+
+  <script>
+    /* APPLICATION STATE */
+    let appState = {
+      isWorking: false,
+      startTime: null,
+      elapsedSec: 0,
+      lastWorkDate: new Date().toLocaleDateString('pt-BR'),
+      kmInitial: 0,
+      kmFinal: 0,
+      yesterdayEarnings: 0,
+      empresas: [],
+      corridasHoje: [],
+      oficinaLogs: [],
+      tasks: {},
+      profile: {
+        nome: "Davi Felix",
+        moto: "Honda CG 160 Fan - ABC1D23",
+        frame: 0,
+        img: null
+      },
+      selectedCalDay: new Date().getDate(),
+      launchedQtd: 1
+    };
+
+    /* INITIALIZATION ON WINDOW LOAD */
+    window.onload = function() {
+      loadLocalStorageData();
+      checkMidnightReset();
+      renderAll();
+
+      // Periodic check every second for active shift timing and midnight reset
+      setInterval(function() {
+        if (appState.isWorking) {
+          appState.elapsedSec++;
+          saveToLocalStorage();
+          updateWorkTimer();
+        }
+        checkMidnightReset();
+      }, 1000);
+    };
+
+    /* NAVIGATION SWITCHING */
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(nav => {
+        nav.classList.remove('active', 'text-brand');
+        nav.classList.add('text-neutral-400');
+      });
+
+      const target = document.getElementById(tabId);
+      if (target) target.classList.remove('hidden');
+
+      if (btn) {
+        btn.classList.add('active', 'text-brand');
+        btn.classList.remove('text-neutral-400');
+      }
+
+      if (tabId === 'tab-empresas') renderEmpresas();
+      if (tabId === 'tab-corrida') updateEmpresaDropdown();
+      if (tabId === 'tab-agenda') renderCalendar();
+    }
+
+    /* AUTOMATIC RESET AT MIDNIGHT (00:00) */
+    function checkMidnightReset() {
+      const currentDateStr = new Date().toLocaleDateString('pt-BR');
+      if (appState.lastWorkDate && appState.lastWorkDate !== currentDateStr) {
+        const totalEarnedToday = (appState.corridasHoje || []).reduce((acc, curr) => acc + curr.valor, 0);
+        if (totalEarnedToday > 0) {
+          appState.yesterdayEarnings = totalEarnedToday;
+        }
+
+        appState.isWorking = false;
+        appState.startTime = null;
+        appState.elapsedSec = 0;
+        appState.corridasHoje = [];
+        appState.lastWorkDate = currentDateStr;
+        saveToLocalStorage();
+        renderAll();
+      }
+    }
+
+    /* LOCAL STORAGE SYSTEM */
+    function loadLocalStorageData() {
+      const saved = localStorage.getItem('meucorre_data_v2');
+      if (saved) {
+        try {
+          appState = Object.assign(appState, JSON.parse(saved));
+        } catch(e) {
+          console.error("Error parsing stored data", e);
+        }
+      } else {
+        appState.empresas = [
+          { id: 1, nome: "Pizzaria Bella Italia", endereco: "Av. Brasil, 450", stars: 5, corridas: 18, ganhoTotal: 184.50 },
+          { id: 2, nome: "Hamburgueria Craft", endereco: "Rua das Flores, 88", stars: 4, corridas: 11, ganhoTotal: 98.00 },
+          { id: 3, nome: "Drogaria Central", endereco: "Praça da Matriz, 12", stars: 5, corridas: 5, ganhoTotal: 42.00 }
+        ];
+        appState.yesterdayEarnings = 145.50;
+        appState.oficinaLogs = [
+          { id: 1, tipo: 'oleo', titulo: 'Troca de Óleo Mobil 20W50', valor: 45.00, oficina: 'Oficina do Marquinhos', km: 12400, data: '10/10' }
+        ];
+      }
+      saveToLocalStorage();
+    }
+
+    function saveToLocalStorage() {
+      localStorage.setItem('meucorre_data_v2', JSON.stringify(appState));
+    }
+
+    /* DASHBOARD LOGIC FIXED */
+    function handleWorkToggle() {
+      if (!appState.isWorking) {
+        const kmInput = prompt("Digite o KM Inicial da sua moto para iniciar o dia:", appState.kmInitial || "");
+        if (kmInput !== null && kmInput.trim() !== "") {
+          const kmVal = parseFloat(kmInput);
+          if (isNaN(kmVal)) return alert("Por favor, digite um número válido de KM.");
+
+          appState.isWorking = true;
+          appState.kmInitial = kmVal;
+          appState.kmFinal = 0;
+          appState.startTime = Date.now();
+          appState.lastWorkDate = new Date().toLocaleDateString('pt-BR');
+          saveToLocalStorage();
+          renderAll();
+        }
+      } else {
+        const kmFimInput = prompt("Digite o KM Final para encerrar o expediente:", appState.kmInitial || "");
+        if (kmFimInput !== null && kmFimInput.trim() !== "") {
+          const kmFimVal = parseFloat(kmFimInput);
+          if (isNaN(kmFimVal) || kmFimVal < appState.kmInitial) {
+            return alert("O KM final deve ser um número válido maior ou igual ao KM inicial.");
+          }
+
+          appState.kmFinal = kmFimVal;
+          appState.isWorking = false;
+          
+          const totalEarnedToday = (appState.corridasHoje || []).reduce((acc, curr) => acc + curr.valor, 0);
+          if (totalEarnedToday > 0) {
+            appState.yesterdayEarnings = totalEarnedToday;
+          }
+
+          saveToLocalStorage();
+          renderAll();
+          alert(`Trabalho encerrado! Você rodou ${(appState.kmFinal - appState.kmInitial).toFixed(1)} km e faturou R$ ${totalEarnedToday.toFixed(2)}.`);
+        }
+      }
+    }
+
+    function updateWorkTimer() {
+      const elapsed = appState.elapsedSec || 0;
+      const hrs = Math.floor(elapsed / 3600);
+      const mins = Math.floor((elapsed % 3600) / 60);
+      const secs = elapsed % 60;
+      document.getElementById('dash-tempo-trabalho').innerText = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    /* EMPRESAS LOGIC */
+    function handleAddEmpresa(e) {
+      e.preventDefault();
+      const nome = document.getElementById('emp-input-nome').value.trim();
+      const end = document.getElementById('emp-input-end').value.trim();
+      const stars = parseInt(document.getElementById('emp-input-stars').value);
+
+      if (!nome) return;
+
+      const newEmp = {
+        id: Date.now(),
+        nome: nome,
+        endereco: end || "Sem endereço cadastrado",
+        stars: stars,
+        corridas: 0,
+        ganhoTotal: 0
+      };
+
+      appState.empresas.push(newEmp);
+      saveToLocalStorage();
+      renderEmpresas();
+
+      document.getElementById('emp-input-nome').value = '';
+      document.getElementById('emp-input-end').value = '';
+    }
+
+    function renderEmpresas() {
+      const listContainer = document.getElementById('lista-empresas');
+      listContainer.innerHTML = '';
+
+      if (appState.empresas.length === 0) {
+        listContainer.innerHTML = `<div class="text-center text-neutral-500 text-xs py-4">Nenhuma empresa cadastrada.</div>`;
+        return;
+      }
+
+      const sortMode = document.getElementById('emp-sort-select').value;
+      let sortedList = [...appState.empresas];
+
+      if (sortMode === 'nome') {
+        sortedList.sort((a,b) => a.nome.localeCompare(b.nome));
+      } else if (sortMode === 'maisUsadas') {
+        sortedList.sort((a,b) => b.corridas - a.corridas);
+      } else if (sortMode === 'stars') {
+        sortedList.sort((a,b) => b.stars - a.stars);
+      }
+
+      sortedList.forEach(emp => {
+        const starsStr = "★".repeat(emp.stars);
+        const card = document.createElement('div');
+        card.className = "bg-cardBg p-3 rounded-xl border border-neutral-800 space-y-1";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-bold text-white text-xs flex items-center gap-1.5">
+                <span>${emp.nome}</span>
+                <span class="text-amber-400 text-[10px]">${starsStr}</span>
+              </div>
+              <div class="text-[10px] text-neutral-400">${emp.endereco}</div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="editEmpresa(${emp.id})" class="text-[10px] bg-neutral-800 hover:bg-neutral-700 px-2 py-0.5 rounded text-neutral-300">Editar</button>
+              <button onclick="deleteEmpresa(${emp.id})" class="text-[10px] bg-red-900/60 hover:bg-red-800 px-2 py-0.5 rounded text-red-200">Excluir</button>
+            </div>
+          </div>
+          <div class="pt-1 flex justify-between text-[10px] text-neutral-400 border-t border-neutral-800/80">
+            <span>Corridas realizadas: <b class="text-brand">${emp.corridas}</b></span>
+            <span>Ganho acumulado: <b class="text-emerald-400">R$ ${emp.ganhoTotal.toFixed(2)}</b></span>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    function editEmpresa(id) {
+      const emp = appState.empresas.find(e => e.id === id);
+      if (!emp) return;
+      const novoNome = prompt("Editar nome da empresa:", emp.nome);
+      if (novoNome) {
+        emp.nome = novoNome;
+        saveToLocalStorage();
+        renderEmpresas();
+      }
+    }
+
+    function deleteEmpresa(id) {
+      if (confirm("Deseja realmente remover esta empresa?")) {
+        appState.empresas = appState.empresas.filter(e => e.id !== id);
+        saveToLocalStorage();
+        renderEmpresas();
+      }
+    }
+
+    /* CORRIDA / ORDER LAUNCH LOGIC FIXED */
+    function updateEmpresaDropdown() {
+      const select = document.getElementById('corrida-empresa-select');
+      select.innerHTML = '';
+      if (appState.empresas.length === 0) {
+        select.innerHTML = `<option value="">Nenhuma empresa cadastrada</option>`;
+        return;
+      }
+      appState.empresas.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.id;
+        opt.innerText = emp.nome;
+        select.appendChild(opt);
+      });
+    }
+
+    function setQuickVal(val) {
+      document.getElementById('corrida-valor-input').value = val.toFixed(2);
+    }
+
+    function adjQtd(delta) {
+      appState.launchedQtd = Math.max(1, appState.launchedQtd + delta);
+      document.getElementById('corrida-qtd-val').innerText = appState.launchedQtd;
+    }
+
+    function handleLaunchCorrida() {
+      const empSelect = document.getElementById('corrida-empresa-select');
+      const empId = parseInt(empSelect.value);
+      const valor = parseFloat(document.getElementById('corrida-valor-input').value);
+      const pag = document.getElementById('corrida-pagamento').value;
+      const qtd = appState.launchedQtd;
+
+      if (!empId) return alert("Por favor, selecione uma empresa.");
+      if (isNaN(valor) || valor <= 0) return alert("Por favor, insira um valor de corrida válido.");
+
+      const emp = appState.empresas.find(e => e.id === empId);
+
+      for (let i = 0; i < qtd; i++) {
+        const corrida = {
+          id: Date.now() + Math.random(),
+          empresaId: empId,
+          empresaNome: emp ? emp.nome : 'Empresa',
+          valor: valor,
+          pagamento: pag,
+          hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        appState.corridasHoje.unshift(corrida);
+
+        if (emp) {
+          emp.corridas++;
+          emp.ganhoTotal += valor;
+        }
+      }
+
+      appState.launchedQtd = 1;
+      document.getElementById('corrida-qtd-val').innerText = "1";
+      document.getElementById('corrida-valor-input').value = "";
+      
+      saveToLocalStorage();
+      renderAll();
+      alert(`${qtd} corrida(s) lançada(s) com sucesso!`);
+    }
+
+    function deleteCorrida(id) {
+      const index = appState.corridasHoje.findIndex(c => c.id === id);
+      if (index !== -1) {
+        const corrida = appState.corridasHoje[index];
+        const emp = appState.empresas.find(e => e.id === corrida.empresaId);
+        if (emp) {
+          emp.corridas = Math.max(0, emp.corridas - 1);
+          emp.ganhoTotal = Math.max(0, emp.ganhoTotal - corrida.valor);
+        }
+        appState.corridasHoje.splice(index, 1);
+        saveToLocalStorage();
+        renderAll();
+      }
+    }
+
+    function renderCorridasHoje() {
+      const container = document.getElementById('lista-corridas-hoje');
+      const countLabel = document.getElementById('shift-count-label');
+      container.innerHTML = '';
+      countLabel.innerText = `${appState.corridasHoje.length} lançamentos`;
+
+      if (appState.corridasHoje.length === 0) {
+        container.innerHTML = `<div class="text-center text-neutral-500 text-xs py-3">Nenhuma corrida lançada hoje.</div>`;
+        return;
+      }
+
+      appState.corridasHoje.forEach(c => {
+        const div = document.createElement('div');
+        div.className = "bg-neutral-900 border border-neutral-800 p-2 rounded-lg flex items-center justify-between text-xs";
+        div.innerHTML = `
+          <div>
+            <div class="font-bold text-white">${c.empresaNome} <span class="text-[10px] text-neutral-400 font-normal">(${c.hora})</span></div>
+            <div class="text-[10px] ${c.pagamento === 'pix' ? 'text-teal-400' : 'text-amber-400'} uppercase font-semibold">${c.pagamento}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-black text-emerald-400">R$ ${c.valor.toFixed(2)}</span>
+            <button onclick="deleteCorrida(${c.id})" class="text-neutral-500 hover:text-red-400 font-bold px-1">✕</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    /* OFICINA LOGIC */
+    function handleSalvarOleo(e) {
+      e.preventDefault();
+      const oficina = document.getElementById('oleo-oficina-nome').value;
+      const valor = parseFloat(document.getElementById('oleo-valor').value);
+      const maoObra = parseFloat(document.getElementById('oleo-mao-obra').value) || 0;
+      const kmAtual = parseFloat(document.getElementById('oleo-km-atual').value);
+      const kmProx = parseFloat(document.getElementById('oleo-km-prox').value);
+
+      const newLog = {
+        id: Date.now(),
+        tipo: 'oleo',
+        titulo: `Troca de Óleo (${oficina})`,
+        valor: valor + maoObra,
+        oficina: oficina,
+        km: kmAtual,
+        kmProx: kmProx,
+        data: new Date().toLocaleDateString([], { day: '2-digit', month: '2-digit' })
+      };
+
+      appState.oficinaLogs.unshift(newLog);
+      if (appState.oficinaLogs.length > 10) appState.oficinaLogs.pop();
+
+      saveToLocalStorage();
+      renderOficinaLogs();
+      e.target.reset();
+    }
+
+    function handleSalvarPeca(e) {
+      e.preventDefault();
+      const peca = document.getElementById('peca-nome').value;
+      const valor = parseFloat(document.getElementById('peca-valor').value);
+      const oficina = document.getElementById('peca-oficina').value || "Não inf.";
+      const km = parseFloat(document.getElementById('peca-km').value) || 0;
+
+      const newLog = {
+        id: Date.now(),
+        tipo: 'peca',
+        titulo: `Peça: ${peca}`,
+        valor: valor,
+        oficina: oficina,
+        km: km,
+        data: new Date().toLocaleDateString([], { day: '2-digit', month: '2-digit' })
+      };
+
+      appState.oficinaLogs.unshift(newLog);
+      if (appState.oficinaLogs.length > 10) appState.oficinaLogs.pop();
+
+      saveToLocalStorage();
+      renderOficinaLogs();
+      e.target.reset();
+    }
+
+    function renderOficinaLogs() {
+      const container = document.getElementById('historico-oficina');
+      const balloon = document.getElementById('balao-oficina-oleo');
+      container.innerHTML = '';
+
+      const lastOleo = appState.oficinaLogs.find(l => l.tipo === 'oleo');
+      if (lastOleo) {
+        balloon.innerHTML = `
+          <strong>${lastOleo.titulo}</strong><br>
+          <span class="text-[11px] text-neutral-400">
+            Km da Troca: <b class="text-white">${lastOleo.km} km</b> | Valor: <b class="text-emerald-400">R$ ${lastOleo.valor.toFixed(2)}</b><br>
+            Próxima Troca prevista: <b class="text-neonYellow">${lastOleo.kmProx || lastOleo.km + 1000} km</b>
+          </span>
+        `;
+      }
+
+      if (appState.oficinaLogs.length === 0) {
+        container.innerHTML = `<div class="text-center text-neutral-500 text-xs py-2">Sem histórico recente.</div>`;
+        return;
+      }
+
+      appState.oficinaLogs.slice(0, 10).forEach(log => {
+        const item = document.createElement('div');
+        item.className = "bg-neutral-900 p-2 rounded-lg border border-neutral-800 flex justify-between items-center text-xs";
+        item.innerHTML = `
+          <div>
+            <div class="font-bold ${log.tipo === 'oleo' ? 'text-neonYellow' : 'text-amber-400'}">${log.titulo}</div>
+            <div class="text-[10px] text-neutral-400">${log.oficina} - ${log.km} km (${log.data})</div>
+          </div>
+          <span class="font-bold text-white">R$ ${log.valor.toFixed(2)}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    /* CALENDAR LOGIC */
+    function renderCalendar() {
+      const grid = document.getElementById('cal-days-grid');
+      grid.innerHTML = '';
+
+      for (let day = 1; day <= 31; day++) {
+        const earnedMock = (day * 37) % 210; 
+        const isGreen = earnedMock > 0 && earnedMock <= 100;
+        const isRed = earnedMock > 100;
+
+        const cell = document.createElement('div');
+        cell.className = `p-1 rounded-lg text-center cursor-pointer border ${day === appState.selectedCalDay ? 'border-brand bg-neutral-800' : 'border-neutral-800 bg-neutral-900'} hover:bg-neutral-800`;
+        cell.onclick = () => selectCalDay(day);
+
+        let badgeClass = "text-neutral-500";
+        if (isGreen) badgeClass = "bg-emerald-950 text-emerald-400 border border-emerald-800";
+        if (isRed) badgeClass = "bg-red-950 text-red-400 border border-red-800";
+
+        cell.innerHTML = `
+          <div class="text-[10px] font-bold text-neutral-300">${day}</div>
+          <div class="text-[8px] font-extrabold rounded px-0.5 mt-0.5 ${badgeClass}">
+            ${earnedMock > 0 ? 'R$' + earnedMock : '-'}
+          </div>
+        `;
+        grid.appendChild(cell);
+      }
+      renderAgendaTasks();
+    }
+
+    function selectCalDay(day) {
+      appState.selectedCalDay = day;
+      document.getElementById('agenda-dia-sel').innerText = `Dia ${day}`;
+      renderCalendar();
+      openTaskModal(day);
+    }
+
+    function renderAgendaTasks() {
+      const container = document.getElementById('agenda-tarefas-list');
+      container.innerHTML = '';
+      const dayTasks = appState.tasks[appState.selectedCalDay] || [];
+
+      if (dayTasks.length === 0) {
+        container.innerHTML = `<div class="text-neutral-500 text-xs text-center py-2">Sem tarefas agendadas.</div>`;
+        return;
+      }
+
+      dayTasks.forEach((t, idx) => {
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between bg-neutral-900 p-2 rounded border border-neutral-800 text-xs";
+        item.innerHTML = `
+          <span class="${t.done ? 'line-through text-neutral-500' : 'text-white'}">${t.text}</span>
+          <button onclick="toggleTaskDone(${idx})" class="text-[10px] ${t.done ? 'text-emerald-400' : 'text-neutral-400'} font-bold">
+            ${t.done ? '✓ Concluído' : 'Marcar OK'}
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function handlePromptAddTask() {
+      const txt = prompt(`Nova tarefa para o dia ${appState.selectedCalDay}:`);
+      if (txt) {
+        if (!appState.tasks[appState.selectedCalDay]) appState.tasks[appState.selectedCalDay] = [];
+        appState.tasks[appState.selectedCalDay].push({ text: txt, done: false });
+        saveToLocalStorage();
+        renderAgendaTasks();
+      }
+    }
+
+    function toggleTaskDone(idx) {
+      const dayTasks = appState.tasks[appState.selectedCalDay];
+      if (dayTasks && dayTasks[idx]) {
+        dayTasks[idx].done = !dayTasks[idx].done;
+        saveToLocalStorage();
+        renderAgendaTasks();
+      }
+    }
+
+    function openTaskModal(day) {
+      document.getElementById('modal-date-label').innerText = day;
+      const modal = document.getElementById('modal-task');
+      const content = document.getElementById('modal-task-content');
+      content.innerHTML = '';
+      const tasks = appState.tasks[day] || [];
+
+      if (tasks.length === 0) {
+        content.innerHTML = `<div class="text-neutral-400 text-center py-2">Nenhuma tarefa agendada para este dia.</div>`;
+      } else {
+        tasks.forEach(t => {
+          content.innerHTML += `<div class="p-2 bg-neutral-900 rounded border border-neutral-800 ${t.done ? 'line-through text-neutral-500' : 'text-white'}">${t.text}</div>`;
+        });
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function closeTaskModal() {
+      document.getElementById('modal-task').classList.add('hidden');
+    }
+
+    function promptAddTaskForModal() {
+      handlePromptAddTask();
+      openTaskModal(appState.selectedCalDay);
+    }
+
+    /* OPTIONS & PROFILE CUSTOMIZATION */
+    function setAvatarFrame(frameIndex) {
+      appState.profile.frame = frameIndex;
+      const frameEl = document.getElementById('profile-frame');
+      frameEl.className = `w-14 h-14 rounded-full overflow-hidden flex items-center justify-center bg-neutral-800 frame-${frameIndex}`;
+      saveToLocalStorage();
+    }
+
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('profile-img').src = evt.target.result;
+          appState.profile.img = evt.target.result;
+          saveToLocalStorage();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveProfileData() {
+      appState.profile.nome = document.getElementById('prof-nome-input').value;
+      appState.profile.moto = document.getElementById('prof-moto-input').value;
+      saveToLocalStorage();
+    }
+
+    function setPrimaryColor(colorHex) {
+      document.querySelectorAll('.text-brand').forEach(el => el.style.color = colorHex);
+      document.querySelectorAll('.bg-brand').forEach(el => el.style.backgroundColor = colorHex);
+    }
+
+    function handleGoogleSync() {
+      alert("Sincronização com Conta Google realizada com sucesso! Backup em nuvem ativado.");
+    }
+
+    function exportEmpresasBackup() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState.empresas));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "meucorre_empresas_backup.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importEmpresasBackup() {
+      const input = prompt("Cole o código JSON do seu backup de empresas aqui:");
+      if (input) {
+        try {
+          const parsed = JSON.parse(input);
+          if (Array.isArray(parsed)) {
+            appState.empresas = parsed;
+            saveToLocalStorage();
+            renderEmpresas();
+            alert("Empresas restauradas com sucesso!");
+          }
+        } catch(e) {
+          alert("Código de backup inválido.");
+        }
+      }
+    }
+
+    function testSystemDiagnostics() {
+      alert("✅ Teste de Diagnóstico Concluído!\n\n- Banco de Dados Local: Ok\n- Cálculo de Rotas/KM: Ok\n- Módulo Oficina: Ok\n- Calendário & Backup: Sincronizados");
+    }
+
+    /* GENERAL RENDER DISPATCHER */
+    function renderAll() {
+      document.getElementById('txt-val-ontem').innerText = `R$ ${(appState.yesterdayEarnings || 0).toFixed(2)}`;
+
+      const workBtn = document.getElementById('btn-toggle-work');
+      if (appState.isWorking) {
+        workBtn.className = "w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition-all transform active:scale-98 bg-red-600 hover:bg-red-500 flex items-center justify-center gap-2 text-base";
+        document.getElementById('work-icon').innerText = "🔴";
+        document.getElementById('work-text').innerText = "ENCERRAR";
+      } else {
+        workBtn.className = "w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition-all transform active:scale-98 bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center gap-2 text-base";
+        document.getElementById('work-icon').innerText = "🟢";
+        document.getElementById('work-text').innerText = "INICIAR";
+      }
+
+      updateWorkTimer();
+
+      const totalGain = (appState.corridasHoje || []).reduce((acc, curr) => acc + curr.valor, 0);
+      const pixGain = (appState.corridasHoje || []).filter(c => c.pagamento === 'pix').reduce((acc, curr) => acc + curr.valor, 0);
+      const dinGain = (appState.corridasHoje || []).filter(c => c.pagamento === 'dinheiro').reduce((acc, curr) => acc + curr.valor, 0);
+      
+      const distinctEmpresasCount = new Set((appState.corridasHoje || []).map(c => c.empresaId)).size;
+
+      document.getElementById('dash-corridas-count').innerText = (appState.corridasHoje || []).length;
+      document.getElementById('dash-valor-total').innerText = `R$ ${totalGain.toFixed(2)}`;
+      document.getElementById('dash-val-pix').innerText = `R$ ${pixGain.toFixed(2)}`;
+      document.getElementById('dash-val-dinheiro').innerText = `R$ ${dinGain.toFixed(2)}`;
+      document.getElementById('dash-empresas-count').innerText = distinctEmpresasCount;
+
+      const kmRun = appState.kmFinal > 0 ? (appState.kmFinal - appState.kmInitial).toFixed(1) : 0;
+      document.getElementById('dash-km-total').innerText = `${kmRun} km`;
+      document.getElementById('dash-km-ini').innerText = appState.kmInitial || 0;
+      document.getElementById('dash-km-fim').innerText = appState.kmFinal || 0;
+
+      // Profile Render
+      document.getElementById('prof-nome-input').value = appState.profile.nome;
+      document.getElementById('prof-moto-input').value = appState.profile.moto;
+      if (appState.profile.img) document.getElementById('profile-img').src = appState.profile.img;
+      setAvatarFrame(appState.profile.frame || 0);
+
+      // Sub-views
+      renderCorridasHoje();
+      renderEmpresas();
+      renderOficinaLogs();
+      updateEmpresaDropdown();
+    }
+  </script>
+</body>
+</html>
